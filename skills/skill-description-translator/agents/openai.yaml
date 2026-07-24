@@ -1,0 +1,4 @@
+interface:
+  display_name: "Skill 描述翻译器"
+  short_description: "仅翻译 SKILL.md 的描述字段并完整保留其余内容"
+  default_prompt: "使用 $skill-description-translator 翻译技能描述；未提供路径时先列出可选技能目录。"
