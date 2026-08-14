@@ -23,7 +23,10 @@ https://github.com/zzxCoding/Flydb/releases/download/v<version>/flydb-cli-<versi
 | `flydb-skills/` | 与版本匹配的 Agent Skills |
 | `README.md`、`AGENTS.md`、`LICENSE`、`NOTICE` 等 | 项目说明与许可 |
 
-安装即解压，没有其他步骤；升级等于解压新版本目录并切换引用路径。
+安装即解压，没有其他步骤；升级等于解压新版本目录并切换引用路径。两个自动化小提示：
+
+- `unzip` 解压到已存在的同名目录时会交互询问覆盖——脚本/自动化场景加 `-o`（如 `unzip -qo`），或先移走旧目录。
+- 第 1 步的探测管道（`find ... | grep .` 之类）在无命中时退出码非 0，这是"没找到"而不是命令故障，以实际输出判断，不要一见非零退出码就报错。
 
 ## 获取策略（按顺序尝试）
 

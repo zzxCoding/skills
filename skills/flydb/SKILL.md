@@ -21,14 +21,16 @@ compatibility: 子技能与本技能同目录安装时可直接互达；各子�
 
 ## 获取技能族
 
-子技能各自自包含、可独立安装；组合使用效果最好。来源：zzxcodingskills 技能仓库（`skills/` 目录）。逐个安装：
+子技能各自自包含、可独立安装；组合使用效果最好。来源：GitHub 仓库 [zzxCoding/skills](https://github.com/zzxCoding/skills) 的 `skills/` 目录。逐个安装：
 
 ```bash
-npx skills add . --skill flydb                  # 总入口（本技能）
-npx skills add . --skill flydb-cli-release      # 执行 CLI
-npx skills add . --skill flydb-migration-scripts    # 写迁移脚本
-npx skills add . --skill flydb-multi-environment    # 多环境与 CI
+npx skills add https://github.com/zzxCoding/skills --skill flydb                  # 总入口（本技能）
+npx skills add https://github.com/zzxCoding/skills --skill flydb-cli-release      # 执行 CLI
+npx skills add https://github.com/zzxCoding/skills --skill flydb-migration-scripts    # 写迁移脚本
+npx skills add https://github.com/zzxCoding/skills --skill flydb-multi-environment    # 多环境与 CI
 ```
+
+安装提示（实测）：`npx skills add` 默认交互式选择目标 agent，非交互环境加 `--agent <name> -y`；`--skill` 一次只接受一个技能名（不支持逗号分隔多值），安装全族就逐条执行。
 
 ## 路由规则
 

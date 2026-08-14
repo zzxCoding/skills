@@ -28,13 +28,22 @@ deploy/
 └── flydb.dm.prod.conf
 ```
 
-示例（只放非敏感项，密码一律不进文件）：
+示例（只放非敏感项，密码一律不进文件）——MySQL：
 
 ```properties
 flydb.url=jdbc:mysql://db-uat.example.com:3306/app
 flydb.user=flydb_ddl
 flydb.database-type=mysql
 flydb.locations=filesystem:/opt/deploy/migrations/mysql
+```
+
+达梦（`jdbc:dm://` URL，默认端口 5236，需显式指定方言 `dm`）：
+
+```properties
+flydb.url=jdbc:dm://db-uat.example.com:5236/demo
+flydb.user=flydb_ddl
+flydb.database-type=dm
+flydb.locations=filesystem:/opt/deploy/migrations/dm
 ```
 
 要点：
@@ -86,7 +95,8 @@ bin/flydb -c "$CONF" validate            # 迁移后复核
 ```
 
 - **环境晋升就是换一个 `-c`。** 测试与生产使用同一份脚本产物、同一个发行包 ZIP，只替换 conf 路径。各环境统一锁定同一个 Flydb 版本，流水线开头的 `version` 即检查点；发行包自带版本匹配的 `docs/` 与 Skill。
-- **退出码做门禁**：`2` 校验失败直接阻断，`3` 锁冲突可配置自动重试与告警（`flydb.lock-timeout-seconds` 按最长迁移时长设置），`4` 配置错误回退到配置阶段修复。
+- **退出码做门禁**：`2` 校验失败直接阻断，`3` 锁冲突可配置自动重试与告警（`flydb.lock-timeout-seconds` 按最长迁移时长设置），`4` 配置错误回退到配置阶段修复；`1` 为一般错误兜底（连接失败、SQL 执行失败、`FLYDB-20xx` 业务失败等），阻断并展示错误详情，按错误码参考细分处理。
+- **审批门的核对材料**：0.2 的 `--dry-run migrate` 输出不含目标库摘要，生产审批时把 dry-run 清单与 `info --color=never` 的当前状态拼合后一起核对。
 - **迁移只能有一个执行者。** 要么 CI 统一执行 CLI，要么应用启动时由 Spring Boot starter 执行；两边都跑虽然会被迁移锁串行，但结果依赖时序。常见分工是测试环境用 starter 省事、生产走 CI 加审批，生产应用可用 `flydb.enabled=false` 关闭自动迁移。
 - 远程库大批量数据迁移用 `--batch-size` 提速，MySQL 家族同时在 URL 上加 `rewriteBatchedStatements=true`。
 - 可选：对生产定时执行只读 `validate`，checksum 不一致通常意味着有人绕过工具手工修改脚本，可作为漂移告警。
