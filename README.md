@@ -146,6 +146,21 @@ npx skills add . --skill flydb-migration-scripts
 npx skills add . --skill flydb-multi-environment
 ```
 
+## 分发渠道
+
+```bash
+# Vercel skills CLI（skills.sh 生态），逐个技能安装
+npx skills add https://github.com/zzxCoding/skills --skill flydb
+
+# Claude Code 插件市场（整族安装）
+# /plugin marketplace add zzxCoding/skills
+# /plugin install flydb-skills@zzxcoding-skills
+```
+
+- **[skills.sh](https://skills.sh)（Vercel）**：安装遥测自动进榜，无需提交；平台例行安全审计。
+- **[ClawHub](https://clawhub.ai)**：经 GitHub Actions 发布（[.github/workflows/clawhub-publish.yml](.github/workflows/clawhub-publish.yml)）。需在仓库 Secrets 配置 `CLAWHUB_TOKEN`；首次经 workflow 发布的技能归入 `other` 分类，需在 ClawHub 设置页补充 categories/topics。
+- **腾讯 SkillHub 等聚合平台**：聚合制、无提交入口；仓库已设置 topics 并在 README 标注安装命令，便于自动收录。
+
 ## 设计依据
 
 - 遵循 [Agent Skills 规范](https://agentskills.io/specification)的 `SKILL.md` 与 YAML frontmatter 约定。

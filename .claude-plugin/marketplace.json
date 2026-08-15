@@ -1,0 +1,35 @@
+{
+  "name": "zzxcoding-skills",
+  "owner": {
+    "name": "zzxCoding",
+    "url": "https://github.com/zzxCoding"
+  },
+  "description": "zzxCoding 的 Agent Skills 集合：Flydb 技能族（数据库 Schema 迁移）与技能描述翻译器",
+  "plugins": [
+    {
+      "name": "flydb-skills",
+      "source": "./",
+      "skills": [
+        "./skills/flydb",
+        "./skills/flydb-cli-release",
+        "./skills/flydb-migration-scripts",
+        "./skills/flydb-multi-environment"
+      ],
+      "description": "Flydb 技能族：总入口路由 + CLI 发布包使用 + 迁移脚本目录管理 + 多数据库多环境自动化。服务于开源项目 Flydb（github.com/zzxCoding/Flydb）。",
+      "homepage": "https://github.com/zzxCoding/Flydb",
+      "repository": "https://github.com/zzxCoding/skills",
+      "keywords": ["flydb", "database", "migration", "jdbc", "信创"],
+      "category": "developer-tools"
+    },
+    {
+      "name": "skill-description-translator",
+      "source": "./",
+      "skills": [
+        "./skills/skill-description-translator"
+      ],
+      "description": "将 Agent Skill 的 SKILL.md 英文 description 翻译为简体中文，保留其他元数据与正文不变。",
+      "repository": "https://github.com/zzxCoding/skills",
+      "keywords": ["skill", "i18n", "translation"]
+    }
+  ]
+}

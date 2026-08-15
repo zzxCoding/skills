@@ -1,0 +1,18 @@
+name: Publish skills to ClawHub
+
+on:
+  workflow_dispatch:
+    inputs:
+      dry_run:
+        description: 预检模式（只验证不发布）
+        type: boolean
+        default: true
+
+jobs:
+  publish:
+    uses: openclaw/clawhub/.github/workflows/skill-publish.yml@main
+    with:
+      owner: zzxCoding
+      dry_run: ${{ inputs.dry_run }}
+    secrets:
+      clawhub_token: ${{ secrets.CLAWHUB_TOKEN }}
