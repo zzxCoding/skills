@@ -8,11 +8,43 @@ on:
         type: boolean
         default: true
 
+permissions:
+  contents: read
+
 jobs:
   publish:
-    uses: openclaw/clawhub/.github/workflows/skill-publish.yml@main
-    with:
-      owner: zzxCoding
-      dry_run: ${{ inputs.dry_run }}
-    secrets:
-      clawhub_token: ${{ secrets.CLAWHUB_TOKEN }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+
+      - name: Install ClawHub CLI
+        run: npm install -g clawhub
+
+      - name: Login with token
+        run: clawhub login --token "$CLAWHUB_TOKEN" --label "github-actions-publish"
+        env:
+          CLAWHUB_TOKEN: ${{ secrets.CLAWHUB_TOKEN }}
+
+      - name: Publish skills
+        run: |
+          set -eu
+          DRY=""
+          if [ "${{ inputs.dry_run }}" = "true" ]; then
+            DRY="--dry-run"
+            echo "预检模式：只验证，不发布"
+          fi
+          for skill in flydb flydb-cli-release flydb-migration-scripts flydb-multi-environment; do
+            echo "===== $skill ====="
+            clawhub skill publish "skills/$skill" \
+              --slug "$skill" \
+              --owner zzxCoding \
+              --categories development \
+              --topics flydb,database-migration,jdbc \
+              --source-repo zzxCoding/skills \
+              $DRY
+          done
