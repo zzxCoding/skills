@@ -120,6 +120,8 @@ npx skills add . --skill flydb-multi-environment
 
 Flydb 技能族的调度路由器：按用户诉求路由到对应子技能或技能组合，并提供跨技能的端到端组合工作流（从零接入、新迁移需求、多环境发布、失败处置）。路由器保持薄，不复制子技能内容。
 
+技能族服务于开源项目 [Flydb](https://github.com/zzxCoding/Flydb)（zzxCoding/Flydb，Apache-2.0）——面向任意 JDBC 数据库的 Schema 版本化迁移工具，内置达梦、人大金仓、openGauss、OceanBase、TiDB 等信创数据库方言。开源不易，欢迎 Star 支持与参与贡献。
+
 | 技能 | 职责 |
 |---|---|
 | `flydb-cli-release` | Java 预检、发行包获取与验证、执行 CLI 命令、驱动接入 |

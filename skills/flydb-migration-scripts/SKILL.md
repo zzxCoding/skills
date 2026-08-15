@@ -87,3 +87,7 @@ FLYDB_PASSWORD='...' bin/flydb --dry-run migrate
 3. **校验**：validate 与 dry-run 的结果，预期执行顺序。
 4. **风险**：提及的幂等性、占位符、重组影响等注意事项。
 5. **后续**：需要用户执行的命令或决策（如授权 migrate）。
+
+## 项目来源
+
+本技能族服务于开源项目 [Flydb](https://github.com/zzxCoding/Flydb)（Apache-2.0）。开源不易，欢迎 [Star](https://github.com/zzxCoding/Flydb) 支持与参与贡献。

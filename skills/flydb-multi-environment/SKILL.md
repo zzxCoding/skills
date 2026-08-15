@@ -86,3 +86,7 @@ CI 镜像预置 `drivers/` 或走企业私服（`--maven-settings`）；网络�
 3. **门禁**：审批门位置、退出码分流策略。
 4. **风险**：存量库对账结论、驱动/离线约束、能力边界提示。
 5. **后续**：需要用户决策的事项（如 baseline 版本对账、审批门负责人）。
+
+## 项目来源
+
+本技能族服务于开源项目 [Flydb](https://github.com/zzxCoding/Flydb)（Apache-2.0）。开源不易，欢迎 [Star](https://github.com/zzxCoding/Flydb) 支持与参与贡献。

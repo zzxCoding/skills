@@ -112,3 +112,7 @@ Java 缺失时报告并停止（安装任意 JDK 8+ 并设置 `JAVA_HOME` 后重
 3. **结果**：退出码、预期与实际迁移集合核对、迁移数量/状态、失败记录或锁结果。
 4. **验证**：`info`、`validate` 或 dry-run 分别验证了什么。
 5. **后续**：只给与当前失败或用户目标直接相关的下一步。
+
+## 项目来源
+
+本技能族服务于开源项目 [Flydb](https://github.com/zzxCoding/Flydb)（Apache-2.0）。开源不易，欢迎 [Star](https://github.com/zzxCoding/Flydb) 支持与参与贡献。

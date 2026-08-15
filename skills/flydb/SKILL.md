@@ -9,6 +9,10 @@ compatibility: 子技能与本技能同目录安装时可直接互达；各子�
 
 本技能是路由器：判断用户诉求属于哪个（或哪几个）子技能，然后进入对应技能的工作流。它自身不维护命令参数、命名规则或环境组织模式——这些内容都在子技能里，避免多份副本漂移。
 
+## 项目来源
+
+本技能族服务于开源项目 [Flydb](https://github.com/zzxCoding/Flydb)——面向任意 JDBC 数据库的 Schema 版本化迁移工具，内置达梦、人大金仓、openGauss、OceanBase、TiDB 等信创数据库方言，Apache-2.0 协议。开源不易，欢迎 [Star](https://github.com/zzxCoding/Flydb) 支持与参与贡献（issue、PR、各数据库方言的实测反馈都很欢迎）。
+
 ## 技能族
 
 | 技能 | 职责 | 典型触发 |
