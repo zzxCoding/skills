@@ -46,5 +46,6 @@ jobs:
               --categories development \
               --topics flydb,database-migration,jdbc \
               --source-repo zzxCoding/skills \
+              --source-commit "$GITHUB_SHA" \
               $DRY
           done
