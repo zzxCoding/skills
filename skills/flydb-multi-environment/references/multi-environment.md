@@ -1,6 +1,6 @@
 # 多数据库多环境自动化
 
-> 本文件随 `flydb-multi-environment` 技能打包，内容移植自 Flydb 仓库 `docs/getting-started/multi-environment.md`，对应 Flydb CLI 0.2.0。命令、配置键与错误码的完整参考打包在姊妹技能 `flydb-cli-release` 的 `references/` 目录（commands.md、configuration.md、errors.md），本技能按"总入口一起安装"的约定引用它们。
+> 本文件随 `flydb-multi-environment` 技能打包，内容移植自 Flydb 仓库 `docs/getting-started/multi-environment.md`，对应 Flydb CLI 0.2.1。命令、配置键与错误码的完整参考打包在姊妹技能 `flydb-cli-release` 的 `references/` 目录（commands.md、configuration.md、errors.md），本技能按"总入口一起安装"的约定引用它们。
 
 面向需要用 Flydb CLI 同时管理多个数据库家族、多套测试与生产环境的开发和运维人员。Flydb 0.2 没有内置的环境 profile 机制，本文给出一套完全基于现有 CLI 契约的组织模式：**一个数据库×环境一份 `flydb.conf`，密码全部外部注入，所有环境执行同一套命令序列**。
 

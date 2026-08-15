@@ -1,6 +1,6 @@
 # 错误码参考
 
-> 本文件随 `flydb-cli-release` 技能打包，内容移植自 Flydb 仓库 `docs/reference/errors.md`，对应 Flydb CLI 0.2.0。CLI 升级后本副本可能滞后；实际错误消息与本文不一致时，以实际输出为准并向用户报告差异。
+> 本文件随 `flydb-cli-release` 技能打包，内容移植自 Flydb 仓库 `docs/reference/errors.md`，对应 Flydb CLI 0.2.1。CLI 升级后本副本可能滞后；与 `bin/flydb --help` 实际输出不一致时，以 `--help` 为准并向用户报告差异。
 
 错误码是 Flydb 的稳定契约。CLI 会将异常映射为退出码，自动化系统可按错误码分类处理；消息中的脚本名、语句序号和行号用于定位问题。
 

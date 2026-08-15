@@ -1,6 +1,6 @@
 # 脚本目录错误码与修改纪律
 
-> 本文件随 `flydb-migration-scripts` 技能打包，对应 Flydb CLI 0.2.0。完整错误码表见姊妹技能 `flydb-cli-release` 的 `references/errors.md`；此处只收录与迁移脚本目录直接相关的部分。
+> 本文件随 `flydb-migration-scripts` 技能打包，对应 Flydb CLI 0.2.1。完整错误码表见姊妹技能 `flydb-cli-release` 的 `references/errors.md`；此处只收录与迁移脚本目录直接相关的部分。
 
 ## 修改纪律（红线）
 

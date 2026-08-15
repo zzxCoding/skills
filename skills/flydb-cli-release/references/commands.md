@@ -1,6 +1,6 @@
 # CLI 命令参考
 
-> 本文件随 `flydb-cli-release` 技能打包，内容移植自 Flydb 仓库 `docs/reference/commands.md`，对应 Flydb CLI 0.2.0。CLI 升级后本副本可能滞后；与 `bin/flydb --help` 实际输出不一致时，以 `--help` 为准并向用户报告差异。
+> 本文件随 `flydb-cli-release` 技能打包，内容移植自 Flydb 仓库 `docs/reference/commands.md`，对应 Flydb CLI 0.2.1。CLI 升级后本副本可能滞后；与 `bin/flydb --help` 实际输出不一致时，以 `--help` 为准并向用户报告差异。
 
 CLI 形式为：
 

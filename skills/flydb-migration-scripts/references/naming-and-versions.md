@@ -1,6 +1,6 @@
 # 迁移脚本命名与版本规则
 
-> 本文件随 `flydb-migration-scripts` 技能打包，内容依据 Flydb CLI 0.2.0 的命令与配置参考整理。与实际行为不一致时，以 `bin/flydb --help` 为准并向用户报告差异。
+> 本文件随 `flydb-migration-scripts` 技能打包，内容依据 Flydb CLI 0.2.1 的命令与配置参考整理。与实际行为不一致时，以 `bin/flydb --help` 为准并向用户报告差异。
 
 ## 目录与发现
 

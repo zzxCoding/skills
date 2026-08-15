@@ -1,6 +1,6 @@
 # 配置项参考
 
-> 本文件随 `flydb-cli-release` 技能打包，内容移植自 Flydb 仓库 `docs/reference/configuration.md`，对应 Flydb CLI 0.2.0。CLI 升级后本副本可能滞后；与 `bin/flydb --help` 实际输出不一致时，以 `--help` 为准并向用户报告差异。
+> 本文件随 `flydb-cli-release` 技能打包，内容移植自 Flydb 仓库 `docs/reference/configuration.md`，对应 Flydb CLI 0.2.1。CLI 升级后本副本可能滞后；与 `bin/flydb --help` 实际输出不一致时，以 `--help` 为准并向用户报告差异。
 
 本文面向已经决定接入 Flydb 的应用开发者和运维人员。CLI 使用 `flydb.conf`，Java API 使用 `FlydbConfiguration.Builder`，Spring Boot 使用 `flydb.*` 属性。三种入口最终汇入同一个 `flydb-core` 配置模型。
 

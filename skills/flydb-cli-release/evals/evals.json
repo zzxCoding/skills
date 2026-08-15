@@ -3,7 +3,7 @@
   "evals": [
     {
       "id": 1,
-      "prompt": "我刚下载了 flydb-cli-0.2.0.zip 在 ~/Downloads 里，机器是新装的。帮我把它装好并确认能用。",
+      "prompt": "我刚下载了 flydb-cli-0.2.1.zip 在 ~/Downloads 里，机器是新装的。帮我把它装好并确认能用。",
       "expected_output": "先检查 Java 环境（java -version，要求 ≥8，缺失时报告并停止而不是继续）；解压本地 ZIP 而不是重新下载；用 bin/flydb version 验证安装成功；报告安装路径与版本。全程不连接数据库、不执行迁移命令。",
       "files": [],
       "assertions": [

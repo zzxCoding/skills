@@ -1,6 +1,6 @@
 # JDBC 驱动接入与 FLYDB-1003 排查
 
-> 本文件随 `flydb-cli-release` 技能打包，对应 Flydb CLI 0.2.0。配置键与环境变量映射见 [configuration.md](configuration.md)。
+> 本文件随 `flydb-cli-release` 技能打包，对应 Flydb CLI 0.2.1。配置键与环境变量映射见 [configuration.md](configuration.md)。
 
 ## 发行包不捆绑驱动
 

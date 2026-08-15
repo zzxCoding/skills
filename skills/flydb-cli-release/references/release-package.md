@@ -1,6 +1,6 @@
 # 发布包：获取、安装与 Java 运行环境
 
-> 本文件随 `flydb-cli-release` 技能打包，对应 Flydb CLI 0.2.0。
+> 本文件随 `flydb-cli-release` 技能打包，对应 Flydb CLI 0.2.1。
 
 ## 发布包形态
 
@@ -10,7 +10,7 @@ Flydb CLI 以 GitHub Release ZIP 分发，不依赖安装器，解压即用：
 https://github.com/zzxCoding/Flydb/releases/download/v<version>/flydb-cli-<version>.zip
 ```
 
-例如 `v0.2.0` 对应 `flydb-cli-0.2.0.zip`。解压后得到基目录 `flydb-cli-<version>/`，布局如下：
+例如 `v0.2.0` 对应 `flydb-cli-0.2.1.zip`。解压后得到基目录 `flydb-cli-<version>/`，布局如下：
 
 | 路径 | 内容 |
 |---|---|
@@ -37,12 +37,12 @@ https://github.com/zzxCoding/Flydb/releases/download/v<version>/flydb-cli-<versi
    找到后运行 `<该目录>/bin/flydb version` 验证可用，直接复用，不重复下载。
 2. **复用本地 ZIP**：本机已有发行包（如 `~/Downloads/flydb-cli-*.zip`）时优先解压复用：
    ```bash
-   unzip -q ~/Downloads/flydb-cli-0.2.0.zip -d ~/tools/
+   unzip -q ~/Downloads/flydb-cli-0.2.1.zip -d ~/tools/
    ```
 3. **按 URL 模式下载**：前两步都没有时，从 GitHub Release 下载。下载是运行时动作；离线或网络不可达时如实报告缺少发行包，不要猜测替代来源或把源码目录当作已安装的 CLI：
    ```bash
-   curl -fL -o flydb-cli-0.2.0.zip \
-     https://github.com/zzxCoding/Flydb/releases/download/v0.2.0/flydb-cli-0.2.0.zip
+   curl -fL -o flydb-cli-0.2.1.zip \
+     https://github.com/zzxCoding/Flydb/releases/download/v0.2.1/flydb-cli-0.2.1.zip
    ```
 
 ## Java 运行环境（前置条件）
