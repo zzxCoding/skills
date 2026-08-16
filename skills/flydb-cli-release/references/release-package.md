@@ -4,10 +4,12 @@
 
 ## 发布包形态
 
-Flydb CLI 以 GitHub Release ZIP 分发，不依赖安装器，解压即用：
+Flydb CLI 以 Release ZIP 分发（GitHub 与 Gitee 国内镜像同步发布），不依赖安装器，解压即用：
 
 ```text
 https://github.com/zzxCoding/Flydb/releases/download/v<version>/flydb-cli-<version>.zip
+# 国内镜像（同型 URL）：
+https://gitee.com/zzhenxuan/Flydb/releases/download/v<version>/flydb-cli-<version>.zip
 ```
 
 例如 `v0.2.0` 对应 `flydb-cli-0.2.1.zip`。解压后得到基目录 `flydb-cli-<version>/`，布局如下：
@@ -39,10 +41,13 @@ https://github.com/zzxCoding/Flydb/releases/download/v<version>/flydb-cli-<versi
    ```bash
    unzip -q ~/Downloads/flydb-cli-0.2.1.zip -d ~/tools/
    ```
-3. **按 URL 模式下载**：前两步都没有时，从 GitHub Release 下载。下载是运行时动作；离线或网络不可达时如实报告缺少发行包，不要猜测替代来源或把源码目录当作已安装的 CLI：
+3. **按 URL 模式下载**：前两步都没有时，从 Release 下载——GitHub 优先；国内网络访问 GitHub 慢或失败时改用 Gitee 镜像同型 URL。下载是运行时动作；离线或网络不可达时如实报告缺少发行包，不要猜测替代来源或把源码目录当作已安装的 CLI：
    ```bash
    curl -fL -o flydb-cli-0.2.1.zip \
      https://github.com/zzxCoding/Flydb/releases/download/v0.2.1/flydb-cli-0.2.1.zip
+   # GitHub 不可达时改用国内镜像（同一发行包）：
+   curl -fL -o flydb-cli-0.2.1.zip \
+     https://gitee.com/zzhenxuan/Flydb/releases/download/v0.2.1/flydb-cli-0.2.1.zip
    ```
 
 ## Java 运行环境（前置条件）

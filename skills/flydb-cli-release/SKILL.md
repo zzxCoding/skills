@@ -1,8 +1,8 @@
 ---
 name: flydb-cli-release
 description: >-
-  使用 Flydb CLI 发布包完成数据库迁移：Java 环境预检、获取与验证发行包（GitHub Release ZIP）、init、info、validate、--dry-run migrate、migrate、baseline、repair、undo、clean 与 JDBC 驱动接入。当用户提到 Flydb、bin/flydb、flydb-cli-*.zip、flydb.conf、flydb Schema 迁移、JDBC 驱动、--database-type，或要在 MySQL/PostgreSQL/Oracle/达梦/人大金仓/openGauss/OceanBase/TiDB 上跑迁移时使用。技能自带全部命令、配置与错误码参考（references/ 目录），无需查阅外部文档。
-compatibility: Flydb CLI 0.2.x；Java 8 或更高版本；需要 flydb-cli 发行包（GitHub Release ZIP 或本地已有安装）与目标数据库的 JDBC 驱动。
+  使用 Flydb CLI 发布包完成数据库迁移：Java 环境预检、获取与验证发行包（GitHub/Gitee Release ZIP）、init、info、validate、--dry-run migrate、migrate、baseline、repair、undo、clean 与 JDBC 驱动接入。当用户提到 Flydb、bin/flydb、flydb-cli-*.zip、flydb.conf、flydb Schema 迁移、JDBC 驱动、--database-type，或要在 MySQL/PostgreSQL/Oracle/达梦/人大金仓/openGauss/OceanBase/TiDB 上跑迁移时使用。技能自带全部命令、配置与错误码参考（references/ 目录），无需查阅外部文档。
+compatibility: Flydb CLI 0.2.x；Java 8 或更高版本；需要 flydb-cli 发行包（GitHub/Gitee Release ZIP 或本地已有安装）与目标数据库的 JDBC 驱动。
 ---
 
 # Flydb CLI 发布包使用
@@ -43,7 +43,7 @@ java -version                       # 要求 ≥8；版本输出在 stderr
 
 1. 探测已有安装：`find ~ /opt /usr/local -maxdepth 4 -type f -name flydb -path '*/bin/flydb'`
 2. 复用本地 ZIP（如 `~/Downloads/flydb-cli-*.zip`），`unzip` 解压
-3. 按 URL 模式 `https://github.com/zzxCoding/Flydb/releases/download/v<version>/flydb-cli-<version>.zip` 下载
+3. 下载：GitHub URL 模式 `https://github.com/zzxCoding/Flydb/releases/download/v<version>/flydb-cli-<version>.zip`；国内网络 GitHub 不可达时用 Gitee 镜像同型 URL `https://gitee.com/zzhenxuan/Flydb/releases/download/v<version>/flydb-cli-<version>.zip`
 
 Java 缺失时报告并停止（安装任意 JDK 8+ 并设置 `JAVA_HOME` 后重试）；发行包缺失且无法下载时如实报告，不要把源码目录当成已安装的 CLI。
 
@@ -115,4 +115,4 @@ Java 缺失时报告并停止（安装任意 JDK 8+ 并设置 `JAVA_HOME` 后重
 
 ## 项目来源
 
-本技能族服务于开源项目 [Flydb](https://github.com/zzxCoding/Flydb)（Apache-2.0）。开源不易，欢迎 [Star](https://github.com/zzxCoding/Flydb) 支持与参与贡献。
+本技能族服务于开源项目 [Flydb](https://github.com/zzxCoding/Flydb)（Apache-2.0；国内镜像 [Gitee](https://gitee.com/zzhenxuan/Flydb)）。开源不易，欢迎 [Star](https://github.com/zzxCoding/Flydb) 支持与参与贡献。

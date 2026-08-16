@@ -89,4 +89,4 @@ CI 镜像预置 `drivers/` 或走企业私服（`--maven-settings`）；网络�
 
 ## 项目来源
 
-本技能族服务于开源项目 [Flydb](https://github.com/zzxCoding/Flydb)（Apache-2.0）。开源不易，欢迎 [Star](https://github.com/zzxCoding/Flydb) 支持与参与贡献。
+本技能族服务于开源项目 [Flydb](https://github.com/zzxCoding/Flydb)（Apache-2.0；国内镜像 [Gitee](https://gitee.com/zzhenxuan/Flydb)）。开源不易，欢迎 [Star](https://github.com/zzxCoding/Flydb) 支持与参与贡献。

@@ -44,7 +44,7 @@ python3 -m unittest discover \
 
 ### flydb-cli-release
 
-使用 [Flydb](https://github.com/zzxCoding/Flydb) CLI 发布包完成数据库迁移的自包含技能：Java 环境预检、获取与验证发行包（已有安装 → 本地 ZIP → GitHub Release 下载）、init、info、validate、`--dry-run migrate`、migrate、baseline、repair、undo、clean 与 JDBC 驱动接入。
+使用 [Flydb](https://github.com/zzxCoding/Flydb) CLI 发布包完成数据库迁移的自包含技能：Java 环境预检、获取与验证发行包（已有安装 → 本地 ZIP → GitHub/Gitee Release 下载）、init、info、validate、`--dry-run migrate`、migrate、baseline、repair、undo、clean 与 JDBC 驱动接入。
 
 技能自带命令、配置、错误码等全部参考文档（`references/`），复制到任何 Agent 技能目录都可独立工作，不依赖 GitHub 文档链接；参考对应 CLI 0.2.0，与 `--help` 实际输出不一致时以后者为准。
 
@@ -120,7 +120,7 @@ npx skills add . --skill flydb-multi-environment
 
 Flydb 技能族的调度路由器：按用户诉求路由到对应子技能或技能组合，并提供跨技能的端到端组合工作流（从零接入、新迁移需求、多环境发布、失败处置）。路由器保持薄，不复制子技能内容。
 
-技能族服务于开源项目 [Flydb](https://github.com/zzxCoding/Flydb)（zzxCoding/Flydb，Apache-2.0）——面向任意 JDBC 数据库的 Schema 版本化迁移工具，内置达梦、人大金仓、openGauss、OceanBase、TiDB 等信创数据库方言。开源不易，欢迎 Star 支持与参与贡献。
+技能族服务于开源项目 [Flydb](https://github.com/zzxCoding/Flydb)（zzxCoding/Flydb，Apache-2.0；国内镜像 [Gitee](https://gitee.com/zzhenxuan/Flydb)）——面向任意 JDBC 数据库的 Schema 版本化迁移工具，内置达梦、人大金仓、openGauss、OceanBase、TiDB 等信创数据库方言。开源不易，欢迎 Star 支持与参与贡献。
 
 | 技能 | 职责 |
 |---|---|
@@ -160,6 +160,7 @@ npx skills add https://github.com/zzxCoding/skills --skill flydb
 - **[skills.sh](https://skills.sh)（Vercel）**：安装遥测自动进榜，无需提交；平台例行安全审计。
 - **[ClawHub](https://clawhub.ai)**：经 GitHub Actions 发布（[.github/workflows/clawhub-publish.yml](.github/workflows/clawhub-publish.yml)）。需在仓库 Secrets 配置 `CLAWHUB_TOKEN`；首次经 workflow 发布的技能归入 `other` 分类，需在 ClawHub 设置页补充 categories/topics。
 - **腾讯 SkillHub 等聚合平台**：聚合制、无提交入口；仓库已设置 topics 并在 README 标注安装命令，便于自动收录。
+- **Flydb 国内镜像（Gitee）**：[gitee.com/zzhenxuan/Flydb](https://gitee.com/zzhenxuan/Flydb)，方便国内用户访问 Flydb 源码与文档；CLI 发行包同步发布在 GitHub 与 Gitee Release。
 
 ## 设计依据
 

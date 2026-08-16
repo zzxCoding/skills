@@ -15,7 +15,7 @@
         "./skills/flydb-migration-scripts",
         "./skills/flydb-multi-environment"
       ],
-      "description": "Flydb 技能族：总入口路由 + CLI 发布包使用 + 迁移脚本目录管理 + 多数据库多环境自动化。服务于开源项目 Flydb（github.com/zzxCoding/Flydb）。",
+      "description": "Flydb 技能族：总入口路由 + CLI 发布包使用 + 迁移脚本目录管理 + 多数据库多环境自动化。服务于开源项目 Flydb（github.com/zzxCoding/Flydb，国内镜像 gitee.com/zzhenxuan/Flydb）。",
       "homepage": "https://github.com/zzxCoding/Flydb",
       "repository": "https://github.com/zzxCoding/skills",
       "keywords": ["flydb", "database", "migration", "jdbc", "信创"],
