@@ -25,9 +25,20 @@ compatibility: 子技能与本技能同目录安装时可直接互达；各子�
 
 ## 获取技能族
 
-子技能各自自包含、可独立安装；组合使用效果最好。来源：GitHub 仓库 [zzxCoding/skills](https://github.com/zzxCoding/skills) 的 `skills/` 目录。两个渠道内容一致，国内网络优先用 SkillHub：
+子技能各自自包含、可独立安装；组合使用效果最好。来源：GitHub 仓库 [zzxCoding/skills](https://github.com/zzxCoding/skills) 的 `skills/` 目录。默认走 npx（GitHub），访问 GitHub 不可达时才改用 SkillHub：
 
-### 国内渠道：腾讯 SkillHub
+### 默认渠道：GitHub（npx）
+
+```bash
+npx skills add https://github.com/zzxCoding/skills --skill flydb                  # 总入口（本技能）
+npx skills add https://github.com/zzxCoding/skills --skill flydb-cli-release      # 执行 CLI
+npx skills add https://github.com/zzxCoding/skills --skill flydb-migration-scripts    # 写迁移脚本
+npx skills add https://github.com/zzxCoding/skills --skill flydb-multi-environment    # 多环境与 CI
+```
+
+安装提示（实测）：`npx skills add` 默认交互式选择目标 agent，非交互环境加 `--agent <name> -y`；`--skill` 一次只接受一个技能名（不支持逗号分隔多值），安装全族就逐条执行。
+
+### 备选渠道：腾讯 SkillHub（GitHub 不可达时）
 
 技能族已整套发布在 [SkillHub](https://skillhub.cn)（专为中国用户优化的 Skills 社区）。把提示词复制发给任意 AI 助手（Claude Code、Codex 等）即可安装，不经过 GitHub：
 
@@ -39,17 +50,6 @@ compatibility: 子技能与本技能同目录安装时可直接互达；各子�
 ```
 
 首次使用会按指引安装 `skillhub` CLI 并把技能装到当前 Agent 的 skills 目录（安装必须带 `--dir` 指向该目录，见 skillhub.md 第四节）；后续搜索、安装、升级均走国内线路。
-
-### GitHub（npx）
-
-```bash
-npx skills add https://github.com/zzxCoding/skills --skill flydb                  # 总入口（本技能）
-npx skills add https://github.com/zzxCoding/skills --skill flydb-cli-release      # 执行 CLI
-npx skills add https://github.com/zzxCoding/skills --skill flydb-migration-scripts    # 写迁移脚本
-npx skills add https://github.com/zzxCoding/skills --skill flydb-multi-environment    # 多环境与 CI
-```
-
-安装提示（实测）：`npx skills add` 默认交互式选择目标 agent，非交互环境加 `--agent <name> -y`；`--skill` 一次只接受一个技能名（不支持逗号分隔多值），安装全族就逐条执行。
 
 ## 路由规则
 

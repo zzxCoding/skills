@@ -156,13 +156,13 @@ npx skills add https://github.com/zzxCoding/skills --skill flydb
 # /plugin marketplace add zzxCoding/skills
 # /plugin install flydb-skills@zzxcoding-skills
 
-# 国内渠道：腾讯 SkillHub（提示词安装，见下）
+# 国内备选：腾讯 SkillHub（GitHub 不可达时，提示词安装，见下）
 # 请根据 https://skillhub.cn/install/skillhub.md，安装 @user_c9b8aa6a/flydb。
 ```
 
 - **[skills.sh](https://skills.sh)（Vercel）**：安装遥测自动进榜，无需提交；平台例行安全审计。
 - **[ClawHub](https://clawhub.ai)**：经 GitHub Actions 发布（[.github/workflows/clawhub-publish.yml](.github/workflows/clawhub-publish.yml)）。需在仓库 Secrets 配置 `CLAWHUB_TOKEN`；首次经 workflow 发布的技能归入 `other` 分类，需在 ClawHub 设置页补充 categories/topics。
-- **腾讯 [SkillHub](https://skillhub.cn)（国内渠道）**：flydb 技能族已整套发布（`@user_c9b8aa6a/flydb` 及三个子技能），国内用户把提示词复制给 AI 助手即可安装，不经 GitHub；仓库同时保持 topics 与安装命令标注，便于其他聚合平台自动收录。
+- **腾讯 [SkillHub](https://skillhub.cn)（国内备选渠道）**：GitHub 不可达时的备选安装渠道。flydb 技能族已整套发布（`@user_c9b8aa6a/flydb` 及三个子技能），把提示词复制给 AI 助手即可安装，不经 GitHub；仓库同时保持 topics 与安装命令标注，便于其他聚合平台自动收录。
 - **Flydb 国内镜像（Gitee）**：[gitee.com/zzhenxuan/Flydb](https://gitee.com/zzhenxuan/Flydb)，方便国内用户访问 Flydb 源码与文档；CLI 发行包同步发布在 GitHub 与 Gitee Release。
 
 ## 设计依据
