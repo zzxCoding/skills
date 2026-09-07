@@ -1,6 +1,6 @@
 # 配置项参考
 
-> 本文件随 `flydb-cli-release` 技能打包，内容移植自 Flydb 仓库 `docs/reference/configuration.md`，对应 Flydb CLI 0.2.1。CLI 升级后本副本可能滞后；与 `bin/flydb --help` 实际输出不一致时，以 `--help` 为准并向用户报告差异。
+> 随 `flydb-cli-release` 打包，来源：Flydb `docs/reference/configuration.md`；源码版本 0.3.6，提交 `56bc3baef4a4`。来源是本地工作区快照，发布状态未核验；文件哈希与适配记录见[upstream-sync.json](upstream-sync.json)。使用目标发行包文档与 `--help` 核对版本差异。
 
 本文面向已经决定接入 Flydb 的应用开发者和运维人员。CLI 使用 `flydb.conf`，Java API 使用 `FlydbConfiguration.Builder`，Spring Boot 使用 `flydb.*` 属性。三种入口最终汇入同一个 `flydb-core` 配置模型。
 
@@ -62,7 +62,7 @@ CLI 参数 > FLYDB_* 环境变量 > flydb.conf > 内置默认值
 | `flydb.callbacks` | `FLYDB_CALLBACKS` | `--callbacks` | 空 | Java Callback 类名，逗号分隔 |
 | `flydb.clean-disabled` | `FLYDB_CLEAN_DISABLED` | `--clean-disabled` | `true` | clean 防呆开关 |
 | `flydb.lock-timeout-seconds` | `FLYDB_LOCK_TIMEOUT_SECONDS` | `--lock-timeout-seconds` | `60` | 获取迁移锁的等待秒数 |
-| `flydb.batch-size` | `FLYDB_BATCH_SIZE` | `--batch-size` | `1` | SQL 语句 JDBC 批大小；`1`（默认）逐条执行并精确定位失败语句，`>1` 时按批提交减少远程库往返。远程库大批量 INSERT 可显著提速；MySQL 建议同时在 `flydb.url` 追加 `rewriteBatchedStatements=true` 才能获得改写合并收益。失败时语句序号按批内已执行计数推算，定位粒度略降 |
+| `flydb.batch-size` | `FLYDB_BATCH_SIZE` | `--batch-size` | `1` | SQL 语句 JDBC 批大小；`1`（默认）逐条执行并精确定位失败语句，`>1` 时按批提交减少远程库往返。远程库大批量 INSERT 可显著提速；MySQL 建议同时在 `flydb.url` 追加 `rewriteBatchedStatements=true` 才能获得改写合并收益。批量失败优先使用 JDBC `EXECUTE_FAILED` 标记定位，`confirmed` 只统计首个失败之前的连续成功前缀；遇错即停驱动按失败前计数推算；没有可靠标记时只报告批次范围 |
 
 密码支持直接写入 `flydb.password=明文密码`，也支持 `${env:DB_PASSWORD}` 间接引用或 `flydb.password.file=/run/secrets/db_password`。明文配置会随文件备份、版本控制和权限错误而暴露，因此仅建议本地临时测试；生产和共享环境推荐环境变量或密码文件。Flydb 不会主动把密码写入日志、错误消息或 dry-run 输出。
 

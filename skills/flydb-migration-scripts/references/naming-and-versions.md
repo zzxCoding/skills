@@ -1,6 +1,6 @@
 # 迁移脚本命名与版本规则
 
-> 本文件随 `flydb-migration-scripts` 技能打包，内容依据 Flydb CLI 0.2.1 的命令与配置参考整理。与实际行为不一致时，以 `bin/flydb --help` 为准并向用户报告差异。
+> 本文件随 `flydb-migration-scripts` 打包，按 Flydb CLI 0.3.x 的命令与配置参考整理；与目标版本不一致时核对该发行包文档和 `--help`，并报告差异。
 
 ## 目录与发现
 
@@ -69,6 +69,21 @@ db/migration/20230531/
 
 - 子目录按租户/模块/环境组织均可（递归扫描），历史表以相对路径记账，路径即身份的一部分。
 - `--directory-glob/--file-glob/--path-glob` 与对应 regex 可缩小发现范围；同一维度 glob 与 regex 互斥，不同维度取交集；匹配对象是 location 下以 `/` 分隔的相对路径。
+- 路径过滤影响所有读取本地迁移的命令，包括 info、validate、repair、undo；版本选择只影响 migrate 和其 dry-run。先核对完整历史可见性，不能靠过滤隐藏失败或 MISSING。
+
+## 版本选择与预期集合
+
+| 模式 | 输入 | 含义 |
+|---|---|---|
+| `exact` | `target-version` | 精确一个文件版本；不会自动执行此前所有版本 |
+| `range` | `start-version` / `end-version` 至少一个 | 含边界的版本范围；结束 `20260625` 不含 `20260625.3` |
+| `family` | `target-version` | 目标及其 token 子版本，`202305310.1` 不属于 `20230531` |
+| `family-range` | 起止边界至少一个 | 包含结束版本族的子版本 |
+| `regex` | `version-regex` | 规范化版本文本整串匹配 |
+
+省略模式时有 target 推断为 exact，有起止边界推断为 range；均无则不筛选版本。`version-source=directory` 改为比较目录版本，因此 exact 也可选中同目录版本下多个文件版本。显式选择版本时不执行 R 脚本，不绕过 checksum、失败记录或 out-of-order。
+
+用有效 locations → 路径过滤 → 版本选择与历史状态 → 排序得到预期清单，再与 dry-run 逐项核对；不能只统计递归发现的 `.sql` 文件数。
 
 ## 占位符
 

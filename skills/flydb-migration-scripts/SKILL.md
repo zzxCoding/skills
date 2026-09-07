@@ -1,15 +1,16 @@
 ---
 name: flydb-migration-scripts
 description: >-
-  管理使用 Flydb 的项目中的迁移脚本目录（db/migration 及自定义 locations）：新增 V__/R__/U__ 迁移 SQL、命名与版本策略、子目录与目录版本组织、占位符使用、checksum 与失败记录纪律。当用户提到迁移脚本、db/migration、V1__、R__、U1__、flydb.locations，或遇到 FLYDB-2001/2002/2003/2004/2005/2008/2009 报错、要新增/修改/重组迁移脚本时使用。技能自带命名规则与错误处置参考，无需查阅外部文档。
-compatibility: 适配 Flydb CLI 0.2.x 的迁移脚本约定；只读写迁移脚本目录与 flydb.conf，执行 CLI 命令属 flydb-cli-release 技能范围。
+  创建、修改和组织 Flydb 的 V/R/U 迁移 SQL，处理命名、版本族与目录版本、路径过滤、占位符和历史 checksum。用户要写迁移脚本、重组 locations 或修正脚本相关 FLYDB-2xxx 错误时使用；数据库执行与恢复操作交给 flydb-cli-release。
+metadata:
+  compatibility: 按 Flydb CLI 0.3.x 的脚本与版本选择约定维护；只修改任务涉及的迁移 SQL 和配置，执行 CLI 命令属 flydb-cli-release 技能范围。
 ---
 
 # Flydb 迁移脚本目录管理
 
 在使用 Flydb 的项目里创建、修改和组织迁移脚本目录。本技能管"写脚本"：命名、版本、目录布局与修改纪律；执行 CLI（migrate/validate 等）用姊妹技能 `flydb-cli-release`，多环境/CI 自动化用 `flydb-multi-environment`（总入口为 `flydb` 技能），各技能可独立使用。
 
-## 参考文档（自带，勿上网搜索）
+## 参考文档（按任务读取）
 
 | 文件 | 何时读取 |
 |---|---|
@@ -21,7 +22,7 @@ compatibility: 适配 Flydb CLI 0.2.x 的迁移脚本约定；只读写迁移脚
 1. **改动范围**：只在迁移脚本目录内新增/编辑 SQL 文件（以及经用户确认的 `flydb.locations` 配置）；不动其他项目文件。
 2. **绝不改写已应用的版本化脚本**来"修复"历史——对已应用 `V` 脚本的任何变更（内容、格式、文件名）都用新版本脚本承载。checksum 记录在历史表里，改动即 `FLYDB-2003`。用户明确要求修改已应用脚本时，先说明后果（校验失败/需 repair），确认后再动。
 3. **文件名必须可解析**：`V`/`U` 候选命名不合法时 Flydb 报 `FLYDB-2001` 阻断，不会静默跳过；交付前自行核对命名。
-4. **跟随既有风格**：新脚本的版本策略（递增整数/日期版本/目录版本）与项目现有脚本保持一致；目录为空或风格冲突时先向用户确认，不擅自引入新风格。
+4. **跟随既有风格**：新脚本的版本策略（递增整数/日期版本/目录版本）与现有项目一致；空目录且无约定时采用递增整数并说明选择，只有会影响既有历史的风格冲突才澄清。
 5. **校验后交付**：新增/修改脚本后建议用户跑 `validate` 与 `--dry-run migrate` 核对（只读检查）；本技能不主动执行写入数据库的命令。
 
 ## 工作流
@@ -47,7 +48,7 @@ compatibility: 适配 Flydb CLI 0.2.x 的迁移脚本约定；只读写迁移脚
    - 视图/函数等可重建对象 → `R__<描述>.sql`（无版本号，`R1__` 会报 `FLYDB-2005`）；
    - 需要回退能力的版本化脚本 → 同步写 `U<同版本>__<描述>.sql`（缺它 `undo` 报 `FLYDB-2008`）。
 2. 描述用小写下划线短语，简洁表意（如 `create_user`、`add_order_index`）。
-3. SQL 内容注意：编码 UTF-8；`V` 脚本应当次可完整执行，失败中途修正不违反纪律（尚未成功应用）；`${...}` 是占位符语法，业务运行时模板要原样入库时提醒用户设 `placeholder-replacement=false`。
+3. SQL 内容注意：编码按配置（默认 UTF-8）；失败脚本可能已部分提交，修改前先读失败快照并核验数据库现场，不能仅凭“未成功”认定可以完整重跑。`${...}` 是占位符语法，业务运行时模板要原样入库时设 `placeholder-replacement=false`，同时核对其他迁移占位符是否需要替换。
 
 ### 4. 修改既有脚本的红线判断
 
@@ -64,11 +65,12 @@ compatibility: 适配 Flydb CLI 0.2.x 的迁移脚本约定；只读写迁移脚
 建议并协助用户执行：
 
 ```bash
-FLYDB_PASSWORD='...' bin/flydb validate
-FLYDB_PASSWORD='...' bin/flydb --dry-run migrate
+# 密码已由环境或密码文件注入
+bin/flydb validate
+bin/flydb --json --dry-run migrate
 ```
 
-核对：新脚本出现在预期位置、版本顺序正确、无命名告警、dry-run 的 SQL 语句符合预期。发现 `FLYDB-2001/2002` 等错误按 [`references/errors-and-discipline.md`](references/errors-and-discipline.md) 修正命名或版本。
+核对：新脚本出现在预期位置、版本顺序正确、无命名告警、dry-run 的 SQL 符合预期。先按有效 locations、路径过滤和版本模式计算预期集合，不能用目录下全部 SQL 数量代替计划数量；显式版本选择排除 R 脚本。无数据库连接时只报告静态命名/配置检查，标明 validate 与 dry-run 未执行。
 
 ## 边界情况
 

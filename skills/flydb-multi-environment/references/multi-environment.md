@@ -1,8 +1,8 @@
 # 多数据库多环境自动化
 
-> 本文件随 `flydb-multi-environment` 技能打包，内容移植自 Flydb 仓库 `docs/getting-started/multi-environment.md`，对应 Flydb CLI 0.2.1。命令、配置键与错误码的完整参考打包在姊妹技能 `flydb-cli-release` 的 `references/` 目录（commands.md、configuration.md、errors.md），本技能按"总入口一起安装"的约定引用它们。
+> 本文件依据 Flydb `docs/getting-started/multi-environment.md`，结合当前命令、JSON、MCP 与 Web 契约手工维护，适配 CLI 0.3.x。完整参考在同级 `flydb-cli-release/references/`；独立安装时可读取目标发行包 `docs/`。源码同步工具不覆盖本文件。
 
-面向需要用 Flydb CLI 同时管理多个数据库家族、多套测试与生产环境的开发和运维人员。Flydb 0.2 没有内置的环境 profile 机制，本文给出一套完全基于现有 CLI 契约的组织模式：**一个数据库×环境一份 `flydb.conf`，密码全部外部注入，所有环境执行同一套命令序列**。
+组织模式为：**一个数据库×环境一份 `flydb.conf`，密码外部注入，所有环境执行同一套命令序列**。Web 中的 profile 是本机配置登记，不是 CLI 配置继承、远程平台或生产审批机制。
 
 ## 1. 总体模式
 
@@ -82,24 +82,51 @@ migrations/
 
 ## 5. 流水线：所有环境同一套命令序列
 
-```bash
-CONF=deploy/flydb.dm.prod.conf
+拆成两个 CI job/stage，由平台真实审批门连接；注释本身不是门禁。两个阶段使用相同的绝对配置路径、工作目录、CLI、脚本与过滤/版本参数，密码由 CI secret 注入。以下示例需要 `jq`。
 
-bin/flydb -c "$CONF" version             # 各环境工具版本一致性检查
-bin/flydb -c "$CONF" validate            # checksum、失败记录、迁移集合
-bin/flydb -c "$CONF" --dry-run migrate   # 输出待执行清单，供人工或门禁核对
-# ── 生产环境在此设置审批门：核对 dry-run 清单与目标库摘要，获得明确授权后 ──
-bin/flydb -c "$CONF" migrate
-bin/flydb -c "$CONF" info --color=never  # 状态留档
-bin/flydb -c "$CONF" validate            # 迁移后复核
+预检阶段（任一 CLI 非零退出立即阻断；把输出目录交给受控制品存储）：
+
+```bash
+set -eu
+umask 077
+CONF=/opt/deploy/deploy/flydb.dm.prod.conf
+ARTIFACT_DIR=$(mktemp -d "${TMPDIR:-/tmp}/flydb-review.XXXXXXXX")
+bin/flydb -c "$CONF" --json version > "$ARTIFACT_DIR/version.json" 2> "$ARTIFACT_DIR/version.log"
+bin/flydb -c "$CONF" --json info > "$ARTIFACT_DIR/target.json" 2> "$ARTIFACT_DIR/info.log"
+bin/flydb -c "$CONF" --json validate > "$ARTIFACT_DIR/validate.json" 2> "$ARTIFACT_DIR/validate.log"
+bin/flydb -c "$CONF" --json --dry-run migrate > "$ARTIFACT_DIR/plan.json" 2> "$ARTIFACT_DIR/plan.log"
+jq -e '.protocolVersion == 1 and .status == "success" and .exitCode == 0
+  and .dryRun == true and .plan.algorithm == "flydb-plan-v1"' "$ARTIFACT_DIR/plan.json"
 ```
+
+审批材料包括目标摘要、环境、版本、计划 SQL/顺序和 `plan.id`、配置及脚本产物身份。JSON 计划含业务 SQL；使用受控存储，不能默认作为公开制品。
+
+执行阶段仅在对应环境审批通过后启动（CI 传入审批制品目录与相同配置）：
+
+```bash
+set -eu
+: "${ARTIFACT_DIR:?CI 传入本次审批的制品目录}"
+: "${CONF:?CI 传入已批准的绝对配置路径}"
+bin/flydb -c "$CONF" --json --dry-run migrate > "$ARTIFACT_DIR/rechecked-plan.json" 2> "$ARTIFACT_DIR/rechecked-plan.log"
+jq -e '.protocolVersion == 1 and .status == "success" and .exitCode == 0
+  and .dryRun == true and .plan.algorithm == "flydb-plan-v1"' "$ARTIFACT_DIR/rechecked-plan.json"
+approved_id=$(jq -er '.plan.id' "$ARTIFACT_DIR/plan.json")
+current_id=$(jq -er '.plan.id' "$ARTIFACT_DIR/rechecked-plan.json")
+[ "$approved_id" = "$current_id" ] || { echo "计划变化，返回预检与审批阶段" >&2; exit 2; }
+bin/flydb -c "$CONF" --json migrate > "$ARTIFACT_DIR/migrate.json" 2> "$ARTIFACT_DIR/migrate.log"
+bin/flydb -c "$CONF" --json info > "$ARTIFACT_DIR/after.json" 2> "$ARTIFACT_DIR/after.log"
+bin/flydb -c "$CONF" --json validate > "$ARTIFACT_DIR/after-validate.json" 2> "$ARTIFACT_DIR/after-validate.log"
+```
+
+这只是外部流程核对：`plan.id` 不包含数据库目标，普通 CLI/MCP 写入没有批准摘要参数；核对与写入之间也不具备原子绑定。CI 还需固定并核对目标、配置、环境覆盖、脚本、驱动和回调，变化时回到预检。不能杜撰 `--plan-id`；Web 内部的锁内确认与临时 `planId` 也不能直接用于 CLI。
 
 - **环境晋升就是换一个 `-c`。** 测试与生产使用同一份脚本产物、同一个发行包 ZIP，只替换 conf 路径。各环境统一锁定同一个 Flydb 版本，流水线开头的 `version` 即检查点；发行包自带版本匹配的 `docs/` 与 Skill。
 - **退出码做门禁**：`2` 校验失败直接阻断，`3` 锁冲突可配置自动重试与告警（`flydb.lock-timeout-seconds` 按最长迁移时长设置），`4` 配置错误回退到配置阶段修复；`1` 为一般错误兜底（连接失败、SQL 执行失败、`FLYDB-20xx` 业务失败等），阻断并展示错误详情，按错误码参考细分处理。
-- **审批门的核对材料**：0.2 的 `--dry-run migrate` 输出不含目标库摘要，生产审批时把 dry-run 清单与 `info --color=never` 的当前状态拼合后一起核对。
+- **机器结果**：stdout 为一行 JSON，stderr 单独记录；核对 protocolVersion/status/exitCode，忽略新增未知字段，退出码仍是第一层门禁。错误信封读取 error.code；中断或 Adapter 错误可能没有完整 CLI 信封。
 - **迁移只能有一个执行者。** 要么 CI 统一执行 CLI，要么应用启动时由 Spring Boot starter 执行；两边都跑虽然会被迁移锁串行，但结果依赖时序。常见分工是测试环境用 starter 省事、生产走 CI 加审批，生产应用可用 `flydb.enabled=false` 关闭自动迁移。
 - 远程库大批量数据迁移用 `--batch-size` 提速，MySQL 家族同时在 URL 上加 `rewriteBatchedStatements=true`。
 - 可选：对生产定时执行只读 `validate`，checksum 不一致通常意味着有人绕过工具手工修改脚本，可作为漂移告警。
+- **长迁移与未知结果**：CI 保持前台运行并设置大于预期时长的 Job 超时。执行遥测的 confirmed 不等于提交；超时、进程消失且无终态、提交未知先核验现场，不自动重试或 repair。终端/SSH 的 nohup 方案见 CLI 命令参考，不直接搬入 CI 掩盖退出状态。
 
 ## 6. 存量库先 baseline 再自动化
 
@@ -120,7 +147,7 @@ bin/flydb -c "$CONF" baseline --baseline-version 20260801
 
 ## 8. 当前能力边界
 
-- **没有 `--json` 机器输出**（规划于 Flydb 路线图阶段二）：CI 目前只能依赖退出码和 `info --color=never` 的文本输出，解析逻辑需要接受这一约束。
+- **MCP 已提供独立 Adapter**：宿主使用白名单 tools 消费 CLI 信封；写工具默认不注册，启用开关不提供逐次审批。调用超时会终止子进程，结果需核验；不用它承诺长任务自动恢复。
 - **没有配置继承或模板**：多份 conf 之间的重复内容，可在流水线中用模板生成后作为制品管理，而不是等待工具内置 profile。
 - **`undo` 只回退最近一次版本化迁移，`clean` 是破坏性操作**（默认禁用，非交互需双开关）：两者都不应出现在自动化脚本中，仅在本地排障时人工执行。
 - **信创数据库的验证层级**：达梦、KingbaseES、openGauss 目前为方言与驱动元数据契约测试，接入生产前应先在授权实例完成最小验证清单（见 Flydb 仓库 JDBC 数据库快速接入指南），不要把单测通过当作厂商兼容证明。

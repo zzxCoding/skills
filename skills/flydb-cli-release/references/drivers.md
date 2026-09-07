@@ -1,6 +1,6 @@
 # JDBC 驱动接入与 FLYDB-1003 排查
 
-> 本文件随 `flydb-cli-release` 技能打包，对应 Flydb CLI 0.2.1。配置键与环境变量映射见 [configuration.md](configuration.md)。
+> 本文件随 `flydb-cli-release` 打包，按 CLI 0.3.x 维护。配置与来源优先级见 [configuration.md](configuration.md)，新数据库/SPI 接入见 [jdbc-integration.md](jdbc-integration.md)。
 
 ## 发行包不捆绑驱动
 
@@ -42,7 +42,8 @@ flydb.driver-coordinate=com.company.jdbc:vendor-driver:3.2.1
 
 - 轻量解析器只下载坐标对应的主驱动 JAR，**不解析 Maven 传递依赖**；需要伴随 JAR 的厂商驱动应把这些 JAR 一并放入 `drivers/`。
 - 不解密 Maven 加密密码（`{...}` 形式）；此类环境用受控环境变量插值提供凭据，或预先把驱动发布到本地仓库/`drivers/`。
-- 语法兼容不等于迁移语义兼容：复用 `mysql`/`oracle` 方言前应确认 DDL 事务、历史表 DDL、锁、引号/大小写行为；不确定时保持自动探测或用 `--database-type` 显式指定。
+- 语法兼容不等于迁移语义兼容：复用 `mysql`/`oracle` 方言前确认 DDL 事务、历史表、锁、引号/大小写和过程切分。不确定时先核对厂商语义或接入独立 SPI；显式 `--database-type` 本身不能证明兼容。
+- MCP 数据库工具固定 `--driver-download never`，不会在调用期间补下载。GUI 则沿用配置的下载/离线策略，并可使用登记的驱动目录；不能把 CLI 自动下载行为套到 MCP。
 
 ## FLYDB-1003 排查步骤
 

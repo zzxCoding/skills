@@ -1,6 +1,6 @@
 # 脚本目录错误码与修改纪律
 
-> 本文件随 `flydb-migration-scripts` 技能打包，对应 Flydb CLI 0.2.1。完整错误码表见姊妹技能 `flydb-cli-release` 的 `references/errors.md`；此处只收录与迁移脚本目录直接相关的部分。
+> 本文件随 `flydb-migration-scripts` 打包，按 Flydb CLI 0.3.x 维护。完整错误码表见姊妹技能 `flydb-cli-release` 的 `references/errors.md`；此处只收录与迁移脚本直接相关的部分。
 
 ## 修改纪律（红线）
 
@@ -22,11 +22,13 @@ flydb.locations=filesystem:/opt/app/new-migrations,filesystem:/opt/flydb/db/migr
 | `FLYDB-2001` | 版本未以数字开头、含空段/非法字符，或 `V`/`U` 候选命名无法解析；目录版本模式下文件版本不属于目录版本族 | 按命名规则改名（`V<版本>__<描述>.sql`）；不要建议忽略该文件继续 |
 | `FLYDB-2002` | 多个脚本解析为同一版本（含 `1` 与 `1.0` 这类语义等价版本） | 为新脚本分配唯一版本号 |
 | `FLYDB-2003` | checksum 不一致 / 已应用脚本 `MISSING` / 历史版本 `FUTURE` | 分类处理，见下节 |
-| `FLYDB-2004` | 历史表存在 `success=false` 的失败记录 | 修正脚本内容后，由用户决定 repair 清除失败记录，再继续 migrate；不要直接重跑或自动 repair |
+| `FLYDB-2004` | 历史表存在 `success=false` 的失败记录 | 先核验失败事务与已落库对象，再修正脚本并由用户决定历史修复；不要直接重跑或自动 repair |
 | `FLYDB-2005` | 发现旧式 `R<version>__...sql` | 回退脚本改名 `U<version>__...sql`，可重复脚本改名 `R__...sql`；无兼容开关 |
 | `FLYDB-2006` | 未启用 `out-of-order` 时出现低版本补执行 | 按序补齐，或与用户确认后设置 `out-of-order=true` |
 | `FLYDB-2008` | `undo` 时最近版本没有对应 `U<版本>__` 脚本 | 补齐配对的撤销脚本 |
 | `FLYDB-2009` | 未定义占位符，或业务运行时模板被误识别 | 前者补 `flydb.placeholders.*` 或 `-D<key>=<value>`；后者设 `placeholder-replacement=false` 原样保留，不要为模板变量随意赋值 |
+| `FLYDB-2010` | SQL/JDBC 执行失败 | 读取失败阶段、事务结果与定位可信度，按下节核验现场 |
+| `FLYDB-2011` | 已确认计划与锁内重新核对的计划不同 | 重新预览并核对目标和脚本；不能复用旧确认，不能据此断言基础设施完全未变 |
 | `FLYDB-4005` | `flydb.locations` 指向的目录不存在 | 核对前缀（`filesystem:`/`classpath:`）与路径；相对路径注意 CWD，或改绝对路径 |
 
 ## FLYDB-2003 分类处置
@@ -39,9 +41,9 @@ flydb.locations=filesystem:/opt/app/new-migrations,filesystem:/opt/flydb/db/migr
 
 ## 失败记录的处置顺序
 
-`migrate` 中途失败会留下 `success=false` 记录，后续 `migrate` 被 `FLYDB-2004` 阻断。正确顺序：
+`migrate` 失败可能留下 `success=false` 记录；历史写入本身失败时也可能没有完整记录。存在失败记录会阻断后续 migrate。正确顺序：
 
-1. 按错误消息定位失败的脚本、语句序号与行号（`FLYDB-2010`）。
-2. 修正脚本内容——注意该脚本**尚未成功应用**，修正它不违反修改纪律。
-3. 与用户确认后执行 `repair` 清除失败记录（若方言 DDL 非事务，还需评估已执行部分的影响）。
-4. 重新 `validate` → `--dry-run migrate` → `migrate`。
+1. 保存原始错误与“迁移失败执行快照”：失败阶段、事务模式、confirmed、定位可信度、事务结果。`confirmed` 只是首个已定位失败前 JDBC 连续成功前缀，不等于已提交，也不包含失败后的返回项。
+2. 仅明确 ROLLED_BACK/“已回滚”才能按整体回滚处理；NON_TRANSACTIONAL、COMMIT_UNKNOWN、ROLLBACK_FAILED 或 UNKNOWN 先核对数据库对象、数据和历史。MySQL/Oracle 家族纯 INSERT/UPDATE/DELETE/MERGE 脚本可使用整脚本事务，含 DDL/过程块/WITH 等不能套用此结论。
+3. 按可靠定位修正失败脚本；batch 有 EXECUTE_FAILED 标记时可精确定位，仅有遇错即停计数时是推算，无可靠标记时检查候选批次。不能用“尚未成功”推导可以安全重跑。
+4. 由用户确认修复策略，必要时经 CLI 技能执行 repair；repair 不撤销已执行 SQL。重新 validate → dry-run 核对集合与目标 → 在授权范围内 migrate。

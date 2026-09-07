@@ -1,8 +1,8 @@
 # 错误码参考
 
-> 本文件随 `flydb-cli-release` 技能打包，内容移植自 Flydb 仓库 `docs/reference/errors.md`，对应 Flydb CLI 0.2.1。CLI 升级后本副本可能滞后；与 `bin/flydb --help` 实际输出不一致时，以 `--help` 为准并向用户报告差异。
+> 随 `flydb-cli-release` 打包，来源：Flydb `docs/reference/errors.md`；源码版本 0.3.6，提交 `56bc3baef4a4`。来源是本地工作区快照，发布状态未核验；文件哈希与适配记录见[upstream-sync.json](upstream-sync.json)。使用目标发行包文档与 `--help` 核对版本差异。
 
-错误码是 Flydb 的稳定契约。CLI 会将异常映射为退出码，自动化系统可按错误码分类处理；消息中的脚本名、语句序号和行号用于定位问题。
+错误码是 Flydb 的稳定契约。CLI 会将异常映射为退出码，自动化系统可按错误码分类处理；消息中的脚本名、语句序号和行号用于定位问题。`--json` 模式下错误码进入 `error.code` 字段，schema 见 [JSON 输出参考](json-output.md)。
 
 ## 错误码
 
@@ -20,7 +20,7 @@
 | `FLYDB-2007` | baseline 前置不满足 | 已有迁移记录或 baseline 冲突 | 检查历史表与 baseline 版本 |
 | `FLYDB-2008` | 缺少 undo 脚本 | 最近版本没有对应 `U<version>__...sql` | 补齐撤销脚本 |
 | `FLYDB-2009` | 未定义占位符 | SQL 引用了未配置的迁移占位符，或业务运行时模板被误识别为迁移占位符 | 前者补 `flydb.placeholders.*`；后者设置 `flydb.placeholder-replacement=false` 原样保留 |
-| `FLYDB-2010` | 迁移执行失败 | 某条 SQL 被数据库拒绝 | 按脚本、语句序号和行号修正后重试；`flydb.batch-size>1` 时序号按批内已执行计数推算 |
+| `FLYDB-2010` | 迁移执行失败 | 某条 SQL 被数据库拒绝，或执行期间 JDBC 连接中断 | 先读 stderr/应用日志中的“迁移失败执行快照”：核对失败阶段、事务模式、JDBC 已确认执行数、定位可信度与事务结果；`confirmed` 只表示首个已定位失败项之前的连续成功前缀，不包含失败后的返回项，也不等于已提交。纯 DML 单脚本事务只有明确显示“已回滚”时才可在连接恢复后重跑；非事务、回滚失败或提交结果未知时先核对数据库现状。`batch-size>1` 仅在 JDBC 返回 `EXECUTE_FAILED` 时精确定位，遇错即停计数是推算值，无可靠标记时按候选批次排查；不要自动 repair 或重放 |
 | `FLYDB-3001` | 获取迁移锁超时 | 其他进程正在迁移或锁等待过短 | 确认并发任务，必要时调大锁超时 |
 | `FLYDB-4001` | 未知配置键 | 拼写错误或使用了未支持的键 | 删除或修正配置键 |
 | `FLYDB-4002` | 缺少必填配置项 | CLI 没有 URL，或 Spring Boot 没有 DataSource/`flydb.url` | 提供 JDBC URL 或应用 DataSource |
@@ -36,6 +36,14 @@
 建议操作: 确认无并发迁移后重试，或调大 flydb.lock-timeout-seconds。
 ```
 
+### GUI 预演与执行绑定
+
+`FLYDB-2011` 表示执行计划发生变化。带确认计划的 `migrate` / `undo` 在取得迁移锁后
+重新核对目标、待执行集合和解析 SQL；不一致时拒绝业务迁移 SQL，要求重新预览。
+迁移历史表的基础设施准备可能已经发生。原有 `flydb-plan-v1` 摘要算法不变。
+常规 CLI 命令未传确认计划时维持原语义。GUI 的文件冲突、服务重连等错误见
+[Web API 参考](web-api.md)，不占用数据库领域错误码。
+
 ## CLI 退出码
 
 | 退出码 | 含义 |
@@ -45,4 +53,4 @@
 | `2` | 校验失败 |
 | `3` | 锁冲突或锁超时 |
 | `4` | 配置错误 |
-| `5` | 用户中断（SIGINT） |
+| `5` | 用户中断（SIGINT；`--json` 下不保证输出信封） |

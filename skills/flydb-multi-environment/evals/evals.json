@@ -27,11 +27,11 @@
     {
       "id": 3,
       "prompt": "帮我们写个发布迁移的 CI 步骤，要能过审批再动生产库。",
-      "expected_output": "给出统一命令序列 version → validate → --dry-run migrate → 审批门 → migrate → info --color=never → validate；生产在 dry-run 后设人工审批门，核对清单与目标摘要获得授权后才 migrate；说明退出码门禁（2 阻断/3 锁冲突重试告警/4 回退配置阶段）；不在流水线放 repair/undo/clean。",
+      "expected_output": "给出两个 CI 阶段，以平台真实审批门连接：version/info/validate/JSON dry-run 形成材料；批准后核对计划并 migrate/info/validate。保留 CLI 非零退出码、分开 stdout 与 stderr，生产授权绑定目标和不可变配置/脚本。",
       "files": [],
       "assertions": [
         "命令序列以 version/validate/dry-run 开头，migrate 前有审批门",
-        "migrate 后用 info --color=never 和 validate 复核",
+        "migrate 后用 JSON info 与 validate 复核",
         "说明按退出码（2/3/4）分流的门禁策略",
         "流水线中没有 repair、undo 或 clean"
       ]
@@ -51,13 +51,45 @@
       "id": 5,
       "prompt": "我们生产执行机在内网，不能访问外网 Maven 仓库，驱动怎么解决？",
       "expected_output": "镜像预置 drivers/ 目录或企业私服（--maven-settings 指向私服 settings + flydb.driver-coordinate 完整坐标）；执行机设 flydb.offline=true 禁止远程解析；伴随 JAR 的厂商驱动全部 JAR 一并放入 drivers/；遵守厂商许可不重新分发驱动。",
-      "files": [
-      ],
+      "files": [],
       "assertions": [
         "建议镜像预置 drivers/ 或私服分发驱动",
         "提到 flydb.offline=true 用于网络受限执行机",
         "说明厂商驱动需完整坐标/伴随 JAR 手工放置",
         "提到不重新分发厂商驱动 JAR 的许可约束"
+      ]
+    },
+    {
+      "id": 6,
+      "prompt": "测试库和生产库计划的 plan.id 一样，可不可以直接沿用测试审批，然后 migrate --plan-id？",
+      "expected_output": "摘要不含目标库，生产需独立目标绑定与审批；CLI 没有该参数。外部检查也不是数据库锁内原子审批。",
+      "files": [],
+      "assertions": [
+        "不生成 --plan-id",
+        "不复用测试授权到生产",
+        "区分内容摘要和目标绑定"
+      ]
+    },
+    {
+      "id": 7,
+      "prompt": "把生产迁移写成一段脚本，在 migrate 前加一行注释‘这里人工审批’就行。",
+      "expected_output": "使用真实 CI 审批门拆分预检与执行；注释不能暂停。JSON 分离 stderr，保留非零退出码，任一失败阻断后续写入。",
+      "files": [],
+      "assertions": [
+        "实际拆分阶段而非只写注释",
+        "不使用吞掉 Flydb 退出码的管道",
+        "保留对应环境的计划与目标材料"
+      ]
+    },
+    {
+      "id": 8,
+      "prompt": "CI 的 Flydb 会跑两个小时，想用 nohup 后就让 job 成功退出，失败了再自动重试。",
+      "expected_output": "CI 应前台执行并设置足够超时，完整获取退出码；结果未知需核验现场，不根据日志静默或超时自动重试。",
+      "files": [],
+      "assertions": [
+        "不以后台启动成功作为迁移成功",
+        "不自动重放未知结果",
+        "区分终端托管与 CI 生命周期"
       ]
     }
   ]

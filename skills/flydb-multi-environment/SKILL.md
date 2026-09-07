@@ -1,27 +1,28 @@
 ---
 name: flydb-multi-environment
 description: >-
-  组织 Flydb 多数据库、多环境（测试/预发/生产）的迁移自动化：deploy/ 配置矩阵（一个数据库×环境一份 flydb.conf）、密码分层注入、按数据库家族组织脚本仓库、CI 流水线统一命令序列与退出码门禁、存量库 baseline 接入、驱动分发与离线执行机。当用户提到多环境、环境晋升、CI/流水线/自动化、deploy 目录、flydb.*.conf、多个数据库家族共用迁移工具、存量库接入、离线执行机时使用。技能自带组织模式参考，命令与配置细节由姊妹技能 flydb-cli-release 提供。
-compatibility: 适配 Flydb CLI 0.2.x；命令/配置/错误码完整参考在 flydb-cli-release 技能中（建议随技能族一起安装）；需要迁移脚本仓库与各环境的执行机/CI runner。
+  组织 Flydb 多数据库、多环境的迁移发布：配置矩阵、密码注入、JSON/Plan 门禁、存量库 baseline 和离线驱动。用户要搭迁移 CI、晋升环境、管理多份 flydb.conf 或配置内网执行机时使用；单次 CLI/Web/MCP 操作由 flydb-cli-release 覆盖。
+metadata:
+  compatibility: 按 Flydb CLI 0.3.x 维护；完整命令、JSON/Plan 与 MCP 参考在 flydb-cli-release 中，建议同族安装；需要迁移脚本仓库与 CI runner。
 ---
 
 # Flydb 多数据库多环境自动化
 
-在多个数据库家族（MySQL、达梦、Oracle…）× 多套环境（测试/预发/生产）下用同一套 Flydb CLI 契约组织迁移自动化。Flydb 0.2 没有内置环境 profile，本技能给出一套完全基于现有能力的组织模式：**一个数据库×环境一份 `flydb.conf`，密码全部外部注入，所有环境执行同一套命令序列**。执行具体 CLI 命令、写迁移脚本分别由姊妹技能 `flydb-cli-release`、`flydb-migration-scripts` 覆盖。
+在多个数据库家族（MySQL、达梦、Oracle…）× 多套环境下组织迁移：**一个数据库×环境一份 `flydb.conf`，密码外部注入，使用同一发行包和脚本产物**。Web 的配置登记、分组和环境标签不提供 CLI 配置继承或生产审批，不能替代流水线门禁。执行具体 CLI 命令、写迁移脚本分别由 `flydb-cli-release`、`flydb-migration-scripts` 覆盖。
 
-## 参考文档（自带，勿上网搜索）
+## 参考文档（按任务读取）
 
 | 文件 | 何时读取 |
 |---|---|
 | [`references/multi-environment.md`](references/multi-environment.md) | 完整组织模式：配置矩阵、密码分层、脚本仓库布局、流水线、baseline、驱动分发、能力边界 |
 
-命令参数、配置键、错误码的完整参考在 `flydb-cli-release` 技能的 `references/` 目录（与本技能同目录安装时可直达）。
+命令参数、配置键、错误码与 JSON/Plan 的参考在 `flydb-cli-release` 的 `references/` 目录；独立安装缺少该技能时优先读目标发行包的 `docs/`，缺失再定位源码文档，不猜测 schema。
 
 ## 核心契约
 
 1. **密码永不落盘到版本库/命令行**：本地明文仅限临时测试；CI 用 `FLYDB_PASSWORD` 或 `${env:VAR}`；生产用密码文件并收紧权限。自动化中不用 `-p/--password`。
 2. **自动化永远显式传 `-c/--config`**：CI 与堡垒机工作目录不可控，隐式查找是配置漂移的主要来源；`flydb.locations` 一律写绝对路径。
-3. **所有环境同一套命令序列**：`version → validate → --dry-run migrate →（生产审批门）→ migrate → info → validate`；环境晋升只是换一个 `-c`。
+3. **所有环境同一套命令序列**：`version → validate → --json --dry-run migrate →（生产审批门）→ migrate → info → validate`；每个环境独立生成计划和目标摘要，不能把测试库批准直接搬到生产。
 4. **生产写入必须过审批门**：dry-run 清单与目标库摘要核对、获得明确授权后才 `migrate`；流水线中不自动 `repair`、不出现 `undo`/`clean`。
 5. **迁移只有一个执行者**：CI 或应用启动（Spring Boot starter）二选一，避免时序依赖。
 
@@ -50,18 +51,17 @@ migrations/
 
 ### 3. 搭流水线命令序列
 
-所有环境同一序列，退出码做门禁（`2` 校验失败阻断、`3` 锁冲突重试告警、`4` 配置错误回退配置阶段、`1` 一般错误兜底阻断）：
+所有环境同一序列，按 [流水线参考](references/multi-environment.md#5-流水线所有环境同一套命令序列)生成失败即停的脚本；stdout JSON 与 stderr 分开留档，保留进程退出码，不解析中文表格。退出码 `3` 只有确认锁冲突且符合重试策略时才有限重试，执行失败或结果未知不重放。
 
 ```bash
-CONF=deploy/flydb.dm.prod.conf
-bin/flydb -c "$CONF" version
-bin/flydb -c "$CONF" validate
-bin/flydb -c "$CONF" --dry-run migrate
-# 生产审批门：核对清单与目标摘要，获得授权后继续
-bin/flydb -c "$CONF" migrate
-bin/flydb -c "$CONF" info --color=never
-bin/flydb -c "$CONF" validate
+set -eu
+CONF=/opt/deploy/deploy/flydb.dm.prod.conf
+bin/flydb -c "$CONF" --json version
+bin/flydb -c "$CONF" --json validate
+bin/flydb -c "$CONF" --json --dry-run migrate
 ```
+
+以上为预检阶段。将目标与计划送入 CI 平台的真实审批门；通过后由独立执行阶段按参考核对计划，再执行 migrate → info → validate。不能用同一段脚本中的注释充当暂停或授权。
 
 ### 4. 存量库接入（baseline）
 
@@ -73,7 +73,8 @@ CI 镜像预置 `drivers/` 或走企业私服（`--maven-settings`）；网络�
 
 ## 边界情况
 
-- **没有 `--json` 机器输出**（0.2）：门禁依赖退出码与 `info --color=never` 文本，解析逻辑按此设计。
+- **机器输出与计划**：读取 `protocolVersion=1` 信封与 `flydb-plan-v1` 的 `plan.id`；摘要不绑定数据库目标，普通 CLI/MCP 写命令不消费批准摘要，外部审批必须绑定目标、配置和不可变产物。不能杜撰 `--plan-id` 或声称已实现原子审批。
+- **MCP 与长迁移**：MCP 是可选宿主入口，工具开放不等于逐次授权；超时会终止子进程。CI 保持前台并设置足够 Job 超时，终端后台托管与结果未知的处置见 CLI 技能。
 - **没有配置继承/模板**：conf 间重复内容用流水线模板生成后作为制品管理，不等待内置 profile。
 - **`undo`/`clean` 不进自动化**：仅本地排障人工执行。
 - **信创数据库**：单测/契约测试通过不等于厂商兼容证明，生产接入前先在授权实例完成最小验证。

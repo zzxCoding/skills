@@ -55,6 +55,36 @@
         "给出安装命令（npx skills add）",
         "说明子技能自包含、可独立安装"
       ]
+    },
+    {
+      "id": 6,
+      "prompt": "用 flydb web 管理现有配置，并看看 CLI 跑过的记录。",
+      "expected_output": "路由到 flydb-cli-release 的 Web 分支；核验 0.3.5+ 和本机状态目录，导入原配置，说明可见的是同机记录。",
+      "files": [],
+      "assertions": [
+        "路由到 CLI 技能的 Web 参考",
+        "不为查看记录添加写库操作"
+      ]
+    },
+    {
+      "id": 7,
+      "prompt": "MCP 里只有 plan 工具，没有 migrate，是不是坏了？",
+      "expected_output": "路由到 CLI 技能的 MCP 分支；解释默认不注册写工具，检查既有宿主配置，开启写入开关与本次写入授权分开处理。",
+      "files": [],
+      "assertions": [
+        "不把默认只读当作故障",
+        "不开启开关或写库，除非用户授权相应动作"
+      ]
+    },
+    {
+      "id": 8,
+      "prompt": "Flydb 的 migrate 工具超时了，日志最后是 JDBC confirmed 800/1000，帮我判断还能不能重跑。",
+      "expected_output": "路由到 CLI 技能长迁移/失败现场分支，先区分终端托管与 MCP 子进程，核验进程及事务结果。",
+      "files": [],
+      "assertions": [
+        "不把 confirmed 当成提交数",
+        "不自动重放或 repair"
+      ]
     }
   ]
 }

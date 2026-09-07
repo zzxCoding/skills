@@ -1,8 +1,9 @@
 ---
 name: flydb
 description: >-
-  Flydb 技能族总入口与调度路由器。Flydb 是面向任意 JDBC 数据库的 Schema 版本化迁移工具（支持 MySQL、PostgreSQL、Oracle、达梦、人大金仓、openGauss、OceanBase、TiDB）。只要用户提到 Flydb、bin/flydb、flydb.conf、迁移脚本（V__/R__/U__）、flydb-cli 发布包、多环境/CI 迁移自动化，或 FLYDB-xxxx 错误码——即使没说要用哪个技能——先用本技能路由到对应的子技能或技能组合。子技能：flydb-cli-release（安装与执行 CLI）、flydb-migration-scripts（写迁移脚本）、flydb-multi-environment（多环境与 CI 自动化）。
-compatibility: 子技能与本技能同目录安装时可直接互达；各子技能也可独立使用（自带参考文档）。
+  Flydb 技能族入口。用户需要 Flydb CLI 安装与迁移、Web 工作台、JSON/Plan 或 MCP 调用、迁移脚本管理、多环境 CI，或排查 FLYDB 错误时，按任务路由到 flydb-cli-release、flydb-migration-scripts、flydb-multi-environment；跨场景按顺序组合。
+metadata:
+  compatibility: 子技能与本技能同目录安装时可直接互达；各子技能也可独立使用（自带参考文档）。
 ---
 
 # Flydb 技能族总入口
@@ -17,7 +18,7 @@ compatibility: 子技能与本技能同目录安装时可直接互达；各子�
 
 | 技能 | 职责 | 典型触发 |
 |---|---|---|
-| [`flydb-cli-release`](../flydb-cli-release/SKILL.md) | Java 预检、获取/验证 CLI 发行包、init/info/validate/dry-run/migrate/baseline/repair/undo/clean、JDBC 驱动接入 | 安装 CLI、执行迁移、连接或驱动报错 |
+| [`flydb-cli-release`](../flydb-cli-release/SKILL.md) | 发行包与 CLI、Web 工作台、JSON/Plan、MCP、长迁移与 JDBC 接入 | 安装、预演/执行迁移、GUI、机器输出、执行失败 |
 | [`flydb-migration-scripts`](../flydb-migration-scripts/SKILL.md) | 迁移脚本目录（db/migration）的新增/修改/组织：V/R/U 命名、版本策略、checksum 纪律 | 写迁移脚本、命名/版本问题、FLYDB-2001/2002/2003/2005/2008 |
 | [`flydb-multi-environment`](../flydb-multi-environment/SKILL.md) | 多数据库×多环境自动化：deploy/ 配置矩阵、密码分层、CI 流水线、baseline 存量库、离线执行机 | 多环境、CI/流水线、环境晋升、存量库接入 |
 
@@ -56,6 +57,9 @@ npx skills add https://github.com/zzxCoding/skills --skill flydb-multi-environme
 | 用户诉求 | 去处 |
 |---|---|
 | 安装/验证 CLI、执行或预演迁移、baseline/repair/undo/clean、连接与驱动问题、FLYDB-1xxx/3xxx/4xxx | `flydb-cli-release` |
+| flydb web、本机配置管理、GUI 进度、CLI 与 Web 共用执行记录 | `flydb-cli-release` 的 Web 分支 |
+| JSON 信封、Plan 摘要、MCP tools、写工具缺失或 Adapter 错误 | `flydb-cli-release` 的机器输出/MCP 分支；CI 接入再组合 `flydb-multi-environment` |
+| 长时间 migrate、工具超时、失败快照、FLYDB-2010/2011、结果未知 | `flydb-cli-release` 的长迁移/失败处置或 Web 确认分支 |
 | 新增/修改/命名/重组迁移脚本、目录版本、占位符、FLYDB-2001/2002/2005/2008 | `flydb-migration-scripts` |
 | 多环境配置矩阵、密码注入方案、CI 流水线、存量库接入、离线执行机 | `flydb-multi-environment` |
 | 报错但不确定类别 | 先 `flydb-cli-release` 的错误码参考定位，涉及脚本内容修正再进 `flydb-migration-scripts` |
@@ -83,6 +87,6 @@ npx skills add https://github.com/zzxCoding/skills --skill flydb-multi-environme
 
 ## 边界情况
 
-- **诉求超出技能族**（如 Java API/Spring Boot starter 接入、自定义方言 SPI 开发）：说明本技能族面向 CLI 使用场景，这些属于 Flydb 源码仓库开发文档的范畴，不臆造答案。
+- **源码开发**：Java API/Starter 的深入改造、独立分析子系统与新 SPI 实现属于 Flydb 源码开发范围；已有驱动/方言 JAR 的 CLI 接入由 `flydb-cli-release` 覆盖。仅凭路线图不能承诺未交付能力。
 - **子技能缺失**：按"获取技能族"给出安装方式；在安装前可以用本技能的路由表告知用户需要哪个技能，不冒充子技能的内容。
-- **版本差异**：子技能参考对应 CLI 0.2.x；用户环境版本不同时以 `bin/flydb --help` 实际输出为准（各子技能均有此约定）。
+- **版本差异**：技能族按 CLI 0.3.x 维护，Web 入口需 0.3.5+；先核验目标 CLI 版本与匹配文档。副本记录的是源码快照，不能当作公开发版证明。
