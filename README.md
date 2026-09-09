@@ -175,6 +175,26 @@ python3 -m unittest discover -s scripts/tests -p 'test_*.py'
 
 ## 分发渠道
 
+### GitHub Copilot 独立插件
+
+[`plugins/flydb-skills`](plugins/flydb-skills/README.md) 提供 Agent Plugins 1.0
+格式的独立安装包，仅包含 Flydb 四个技能及其参考，不含翻译器。英文介绍、
+固定版本安装命令和使用示例见插件 README。Awesome Copilot 投稿需等待审核，
+投稿不代表已收录。
+
+本次 Flydb 技能包使用 Apache-2.0，具体授权目录见
+[LICENSE-SCOPE.md](LICENSE-SCOPE.md)，不扩展到无关技能。
+原有 Skills CLI 和 Claude Code 市场分发方式保持不变。
+
+维护插件副本：
+
+```bash
+python3 scripts/package_flydb_plugin.py
+python3 scripts/package_flydb_plugin.py --check
+```
+
+### 现有渠道
+
 ```bash
 # Vercel skills CLI（skills.sh 生态），逐个技能安装
 npx skills add https://github.com/zzxCoding/skills --skill flydb

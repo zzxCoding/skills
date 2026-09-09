@@ -1,0 +1,11 @@
+{
+  "$schema": "https://agent-plugins.org/schemas/1.0.0/plugin.schema.json",
+  "name": "flydb-skills",
+  "version": "1.0.0",
+  "description": "Plan and operate Flydb database schema migrations with bundled guidance for CLI releases, migration scripts, and multi-environment delivery.",
+  "author": { "name": "zzxCoding", "url": "https://github.com/zzxCoding" },
+  "homepage": "https://github.com/zzxCoding/skills/tree/main/plugins/flydb-skills",
+  "repository": "https://github.com/zzxCoding/skills",
+  "license": "Apache-2.0",
+  "keywords": ["flydb", "database", "migration", "jdbc", "devops"]
+}
